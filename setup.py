@@ -9,7 +9,6 @@ environ['DISTUTILS_DEBUG'] = 'true'
 
 from setuptools import setup
 from distutils.core import Command
-from distutils.dist import Distribution
 from setuptools.command.sdist import sdist as orig_sdist
 
 
@@ -27,20 +26,6 @@ from setuptools.command.sdist import sdist as orig_sdist
 # distutils/command/sdist.py:sdist.make_release_tree(base_dir, files)
 #   copy files to base_dir. this will become the sdist
 
-class s6_distribution(object):
-    def __init__(self, *args, **kwargs):
-        print('__init__:', args, kwargs)
-        self.__dict__['dist'] = Distribution(*args, **kwargs)
-
-    def __getattr__(self, key):
-        result = getattr(self.dist, key)
-        print('getattr(%r) -> %r' % (key, result))
-        return result
-
-    def __setattr__(self, key, value):
-        print('setattr(%r, %r)' % (key, value))
-        setattr(self.dist, key, value)
-
 
 class fetch_sources(Command):
     def initialize_options(self):
@@ -55,18 +40,14 @@ class fetch_sources(Command):
 
 
 class sdist(orig_sdist):
-    sub_commands = [
-        ('fetch_sources', None),
-    ] + orig_sdist.sub_commands
+    def run(self):
+        self.run_command('fetch_sources')
+        return orig_sdist.run(self)
 
-    def make_release_tree(self, base_dir, files):
-        result = orig_sdist.make_release_tree(self, base_dir, files)
-        return result
 
 setup(
     name='s6',
     version='2.2.0.1',
-    distclass=s6_distribution,
     cmdclass={
         'sdist': sdist,
         'fetch_sources': fetch_sources,

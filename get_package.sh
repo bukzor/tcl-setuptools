@@ -2,8 +2,8 @@
 set -eu
 package="$1"
 url="$2"
-tar=sdist/$package.tar.gz
-dst=sdist/$package
+tar=tar/$package.tar.gz
+dst=vendor/$package
 
 set -x
 if [ -d $dst ]; then
