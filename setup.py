@@ -2,14 +2,16 @@
 # this really only works on linux systems, at the moment
 from __future__ import print_function
 
-# set $DISTUTILS_DEBUG to get extra output from distutils
 from os import environ
-environ['DISTUTILS_DEBUG'] = 'true'
+from os import system
 
+# set $DISTUTILS_DEBUG to get extra output from distutils
+environ['DISTUTILS_DEBUG'] = 'true'
 
 from setuptools import setup
 from distutils.core import Command
 from setuptools.command.sdist import sdist as orig_sdist
+from distutils.command.build import build as orig_build
 
 
 # ############# NOTES #####################
@@ -35,8 +37,7 @@ class fetch_sources(Command):
         pass
 
     def run(self):
-        import os
-        os.system('./get_sources.sh')
+        system('./get_sources.sh')
 
 
 class sdist(orig_sdist):
@@ -45,11 +46,21 @@ class sdist(orig_sdist):
         return orig_sdist.run(self)
 
 
+class build(orig_build):
+    def run(self):
+        self.run_command('fetch_sources')
+        cmd = './build.sh %s' % self.build_temp
+        print(cmd)
+        system(cmd)
+        return orig_build.run(self)
+
+
 setup(
     name='s6',
     version='2.2.0.1',
     cmdclass={
         'sdist': sdist,
         'fetch_sources': fetch_sources,
+        'build': build,
     }
 )
