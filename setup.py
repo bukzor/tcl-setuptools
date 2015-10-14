@@ -2,16 +2,17 @@
 # this really only works on linux systems, at the moment
 from __future__ import print_function
 
-from os import environ
-from os import system
-
-# set $DISTUTILS_DEBUG to get extra output from distutils
-environ['DISTUTILS_DEBUG'] = 'true'
 
 from setuptools import setup
-from distutils.core import Command
 from setuptools.command.sdist import sdist as orig_sdist
-from distutils.command.build import build as orig_build
+from setuptools.command.install import install as orig_install
+
+if True:
+    # pylint: disable=import-error
+    # pylint doesn't agree with virtualenv's distutils hacks
+    #   https://bitbucket.org/logilab/pylint/issues/73/pylint-is-unable-to-import
+    from distutils.core import Command
+    from distutils.command.build import build as orig_build
 
 
 # ############# NOTES #####################
@@ -28,16 +29,24 @@ from distutils.command.build import build as orig_build
 # distutils/command/sdist.py:sdist.make_release_tree(base_dir, files)
 #   copy files to base_dir. this will become the sdist
 
+def system(cmd):
+    from os import system
+    from sys import stderr
+    print(': %s' % cmd, file=stderr)
+    if system(cmd) != 0:
+        exit('command failed: %s' % cmd)
 
-class fetch_sources(Command):
-    def initialize_options(self):
-        pass
 
-    def finalize_options(self):
-        pass
+class build(orig_build):
+    sub_commands = orig_build.sub_commands + [
+        ('build_s6', None),
+    ]
 
-    def run(self):
-        system('./get_sources.sh')
+
+class install(orig_install):
+    sub_commands = orig_install.sub_commands + [
+        ('install_cexe', None),
+    ]
 
 
 class sdist(orig_sdist):
@@ -46,21 +55,83 @@ class sdist(orig_sdist):
         return orig_sdist.run(self)
 
 
-class build(orig_build):
+class fetch_sources(Command):
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    @staticmethod
+    def run():
+        system('./get_sources.sh')
+
+
+class build_s6(Command):
+    build_temp = None
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        self.set_undefined_options('build', ('build_temp', 'build_temp'))
+
     def run(self):
         self.run_command('fetch_sources')
-        cmd = './build.sh %s' % self.build_temp
-        print(cmd)
-        system(cmd)
-        return orig_build.run(self)
+        system('./build.sh %s' % self.build_temp)
 
 
+class install_cexe(Command):
+    description = 'install C executables'
+    outfiles = ()
+    build_dir = install_dir = None
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        # this initializes attributes based on other commands' attributes
+        self.set_undefined_options('build', ('build_temp', 'build_dir'))
+        self.set_undefined_options(
+            'install', ('install_data', 'install_dir'))
+
+    def run(self):
+        self.outfiles = self.copy_tree(self.build_dir, self.install_dir)
+
+    def get_outputs(self):
+        return self.outfiles
+
+
+command_overrides = {
+    'sdist': sdist,
+    'fetch_sources': fetch_sources,
+    'build': build,
+    'build_s6': build_s6,
+    'install': install,
+    'install_cexe': install_cexe,
+}
+
+
+def wheel_support():
+    class bdist_wheel(orig_bdist_wheel):
+        def get_tag(self):
+            python, abi, plat = orig_bdist_wheel.get_tag(self)
+            python = 'py2.py3'  # python is irrelevant to our pure-C package
+            return python, abi, plat
+
+    command_overrides['bdist_wheel'] = bdist_wheel
+
+try:
+    from wheel.bdist_wheel import bdist_wheel as orig_bdist_wheel
+except ImportError:
+    pass
+else:
+    wheel_support()
+
+
+import versions
 setup(
     name='s6',
-    version='2.2.0.1',
-    cmdclass={
-        'sdist': sdist,
-        'fetch_sources': fetch_sources,
-        'build': build,
-    }
+    version=versions.s6_version + '.post5',
+    cmdclass=command_overrides,
 )

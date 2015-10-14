@@ -1,0 +1,55 @@
+[MESSAGES CONTROL]
+disable=
+    locally-disabled,
+    missing-docstring,
+    fixme,
+    star-args,
+    redefined-builtin,
+    no-init,
+    redefined-outer-name,
+
+
+[REPORTS]
+output-format=colorized
+reports=no
+
+[BASIC]
+#const-rgx=(([A-Za-z_][A-Za-z0-9_]*)|(__.*__))$
+const-rgx=(([A-Za-z_][A-Za-z0-9_]*)|(__.*__))$
+
+#function-rgx=[a-z_][a-z0-9_]{2,30}$
+function-rgx=[a-z_][a-z0-9_]{2,60}$
+
+#method-rgx=[a-z_][a-z0-9_]{2,30}$
+method-rgx=(%(function-rgx)s|%(const-rgx)s)
+
+#variable-rgx=[a-z_][a-z0-9_]{2,30}$
+variable-rgx=[a-z_][a-z0-9_]{0,30}$
+
+#class-rgx=[A-Z_][a-zA-Z0-9]+$
+class-rgx=%(const-rgx)s
+
+[FORMAT]
+# in 1970 DEC released the 80-column printer. in 1974 they innovated with a 132-column printer.
+max-line-length=131
+
+# TODO: aim for 250
+# max-module-lines=500
+
+[TYPECHECK]
+ignored-classes=
+    pytest,
+    LocalPath,
+    build_s6,
+    install_cexe,
+    sdist,
+ignored-modules=distutils
+
+[SIMILARITIES]
+ignore-imports=yes
+
+[DESIGN]
+min-public-methods=0
+max-args=6
+
+# vim:ft=dosini:
