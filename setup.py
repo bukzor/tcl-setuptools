@@ -130,8 +130,14 @@ else:
 
 
 import versions
+if versions.s6_version == 'master':
+    version = '0'
+else:
+    version = versions.s6_version
+version += versions.suffix
+
 setup(
     name='s6',
-    version=versions.s6_version + '.post5',
+    version=version,
     cmdclass=command_overrides,
 )

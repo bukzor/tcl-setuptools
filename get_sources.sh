@@ -6,7 +6,7 @@ source versions.sh
 url(){
     package="$1"
     version="$2"
-    echo https://github.com/skarnet/$package/archive/v${version}.tar.gz
+    echo https://github.com/skarnet/$package/archive/${version}.tar.gz
 }
 
 skalibs=$(url skalibs $skalibs_version)
