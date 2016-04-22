@@ -140,4 +140,11 @@ setup(
     name='s6',
     version=version,
     cmdclass=command_overrides,
+    platforms=['linux'],
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: C',
+        'Topic :: System :: Boot :: Init',
+        'Development Status :: 5 - Production/Stable',
+    ],
 )
