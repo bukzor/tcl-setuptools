@@ -114,9 +114,15 @@ command_overrides = {
 
 def wheel_support():
     class bdist_wheel(orig_bdist_wheel):
+        def finalize_options(self):
+            orig_bdist_wheel.finalize_options(self)
+            # Mark us as not a pure python package
+            self.root_is_pure = False
+
         def get_tag(self):
             python, abi, plat = orig_bdist_wheel.get_tag(self)
-            python = 'py2.py3'  # python is irrelevant to our pure-C package
+            # We don't contain any python source, nor any python extensions
+            python, abi = 'py2.py3', 'none'
             return python, abi, plat
 
     command_overrides['bdist_wheel'] = bdist_wheel
