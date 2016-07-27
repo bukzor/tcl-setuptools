@@ -139,7 +139,7 @@ import versions
 if versions.s6_version == 'master':
     version = '0'
 else:
-    version = versions.s6_version
+    version = versions.s6_version.lstrip('v')
 version += versions.suffix
 
 setup(
