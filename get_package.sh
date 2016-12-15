@@ -11,5 +11,5 @@ if [ -f $tar ]; then
     echo $package already downloaded
 else
     mkdir -p "$(dirname $tar)"
-    wget $url -O $tar
+    wget --no-check-certificate $url -O $tar
 fi
