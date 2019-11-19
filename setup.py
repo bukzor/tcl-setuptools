@@ -35,8 +35,7 @@ from distutils.command.build import build as orig_build
 def system(cmd):
     from os import system
     from sys import stderr
-    print(': %s' % cmd, file=stderr)
-    if system(cmd) != 0:
+    if system('set -ex; ' + cmd) != 0:
         exit('command failed: %s' % cmd)
 
 
@@ -77,17 +76,23 @@ class build_cexe(Command):
         pass
 
     def finalize_options(self):
-        self.set_undefined_options('build', ('build_temp', 'build_temp'))
+        pass
+        #self.set_undefined_options('build', ('build_temp', 'build_temp'))
 
     def run(self):
         self.run_command('fetch_sources')
-        system('./build.sh %s' % self.build_temp)
+        # XXX: I wasn't able to figure out how to ./configure this package in a relocatable way.
+        # A potential path forward, but requires patches:
+        #   * https://www.gnu.org/software/gnulib/manual/html_node/Supporting-Relocation.html
+        #   * https://tug.org/pipermail/tex-live/2003-March/003484.html
+        #   * http://git.savannah.gnu.org/cgit/gnulib.git/log/?qt=grep&q=relocatable
+        #system('./build.sh %s' % self.build_temp)
 
 
 class install_cexe(Command):
     description = 'install C executables'
     outfiles = ()
-    build_dir = install_dir = None
+    build_dir = install_tmp = prefix = None
 
     def initialize_options(self):
         pass
@@ -96,10 +101,16 @@ class install_cexe(Command):
         # this initializes attributes based on other commands' attributes
         self.set_undefined_options('build', ('build_temp', 'build_dir'))
         self.set_undefined_options(
-            'install', ('install_data', 'install_dir'))
+            'install', ('install_data', 'install_tmp'))
+        self.set_undefined_options(
+            'install', ('prefix', 'prefix'))
 
     def run(self):
-        self.outfiles = self.copy_tree(self.build_dir, self.install_dir)
+        system("./build.sh '%s' '%s' '%s'" % (
+          self.build_dir,
+          self.install_tmp,
+          self.prefix,
+        ))
 
     def get_outputs(self):
         return self.outfiles
@@ -135,7 +146,8 @@ try:
 except ImportError:
     pass
 else:
-    wheel_support()
+    #wheel_support()
+    pass
 
 
 import versions
@@ -158,4 +170,7 @@ setup(
         'Topic :: System',
         'Development Status :: 5 - Production/Stable',
     ],
+    options={'bdist_wheel': {
+      'universal': 2,
+    }},
 )

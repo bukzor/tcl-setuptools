@@ -1,4 +1,4 @@
 version='4.4.0'
 
 # eg: .post6.dev1
-suffix='.dev0'
+suffix='.dev1'

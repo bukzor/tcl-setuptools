@@ -1,5 +1,5 @@
 dist/
 vendor/
-tar/
 build/
 *.egg-info/
+venv/
