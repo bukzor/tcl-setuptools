@@ -1,6 +1,4 @@
-skalibs_version='v2.3.8.0'
-s6_version='v2.2.2.0'
-execline_version='v2.1.4.2'
+version='4.4.0'
 
 # eg: .post6.dev1
-suffix='.post4'
+suffix='.dev0'

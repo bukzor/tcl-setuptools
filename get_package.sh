@@ -4,7 +4,7 @@
 set -eu
 package="$1"
 url="$2"
-tar=vendor/$package.tar.gz
+tar=vendor/$package.tar.bz2
 
 set -x
 if [ -f $tar ]; then

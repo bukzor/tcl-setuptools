@@ -1,4 +1,12 @@
 #!/usr/bin/env python
+"""# Environment Modules
+
+The Environment Modules package provides for the dynamic modification of a
+user's environment via modulefiles.
+
+* Upstream: https://modules.readthedocs.io/en/latest/
+* Packaging: https://github.com/bukzor/environment-modules-setuptools
+"""
 # this really only works on linux systems, at the moment
 from __future__ import print_function
 
@@ -6,13 +14,8 @@ from __future__ import print_function
 from setuptools import setup
 from setuptools.command.sdist import sdist as orig_sdist
 from setuptools.command.install import install as orig_install
-
-if True:
-    # pylint: disable=import-error
-    # pylint doesn't agree with virtualenv's distutils hacks
-    #   https://bitbucket.org/logilab/pylint/issues/73/pylint-is-unable-to-import
-    from distutils.core import Command
-    from distutils.command.build import build as orig_build
+from distutils.core import Command
+from distutils.command.build import build as orig_build
 
 
 # ############# NOTES #####################
@@ -39,7 +42,7 @@ def system(cmd):
 
 class build(orig_build):
     sub_commands = orig_build.sub_commands + [
-        ('build_s6', None),
+        ('build_cexe', None),
     ]
 
 
@@ -67,7 +70,7 @@ class fetch_sources(Command):
         system('./get_sources.sh')
 
 
-class build_s6(Command):
+class build_cexe(Command):
     build_temp = None
 
     def initialize_options(self):
@@ -106,7 +109,7 @@ command_overrides = {
     'sdist': sdist,
     'fetch_sources': fetch_sources,
     'build': build,
-    'build_s6': build_s6,
+    'build_cexe': build_cexe,
     'install': install,
     'install_cexe': install_cexe,
 }
@@ -136,21 +139,23 @@ else:
 
 
 import versions
-if versions.s6_version == 'master':
+if versions.version == 'master':
     version = '0'
 else:
-    version = versions.s6_version.lstrip('v')
+    version = versions.version
 version += versions.suffix
 
 setup(
-    name='s6',
+    name='environment-modules',
+    long_description=__doc__,
+    long_description_content_type='text/markdown',
     version=version,
     cmdclass=command_overrides,
     platforms=['linux'],
     classifiers=[
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         'Programming Language :: C',
-        'Topic :: System :: Boot :: Init',
+        'Topic :: System',
         'Development Status :: 5 - Production/Stable',
     ],
 )
