@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
-build_dir="$(readlink -m $1)"
-install_tmp="$(readlink -m $2)"
-prefix="$(readlink -m $3)"
+build_dir="$(readlink -m "${1:-$build_dir}")"
+install_tmp="$(readlink -m "${2:-$install_tmp}")"
+prefix="$(readlink -m "${3:-$prefix}")"
 TOP="$PWD"
 
 configure_options="--prefix=$prefix"
@@ -22,7 +22,7 @@ untar() {
     mkdir -p $dst
     tar -xf "$tar" -C "$dst" --strip-components 1
 
-    echo "$dst"
+    echo "$dst/unix"
 }
 
 build() {
@@ -45,4 +45,4 @@ build() {
 
 set -x
 
-build environment-modules
+build tcl

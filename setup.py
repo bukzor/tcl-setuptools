@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-"""# Environment Modules
+"""# Tcl
 
-The Environment Modules package provides for the dynamic modification of a
-user's environment via modulefiles.
+Tcl (Tool Command Language) is a very powerful but easy to learn dynamic
+programming language, suitable for a very wide range of uses, including web and
+desktop applications, networking, administration, testing and many more.
 
-* Upstream: https://modules.readthedocs.io/en/latest/
-* Packaging: https://github.com/bukzor/environment-modules-setuptools
+* Upstream: https://www.tcl.tk/
+* Packaging: https://github.com/bukzor/tcl-setuptools
 """
 # this really only works on linux systems, at the moment
 from __future__ import print_function
@@ -158,7 +159,7 @@ else:
 version += versions.suffix
 
 setup(
-    name='environment-modules',
+    name='tcl',
     long_description=__doc__,
     long_description_content_type='text/markdown',
     version=version,
